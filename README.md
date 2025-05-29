@@ -1,6 +1,6 @@
-# MCP Weather Example
+# MCP Example
 
-This project demonstrates the usage of the Model Context Protocol (MCP) to create a weather information service. It includes a client and multiple server implementations that interact with the National Weather Service (NWS) API.
+A repository containing the basic MCP client and MCP server (based on SDK and JSON-RPC implementation) to help everyone learn MCP from 0.
 
 ## Project Structure
 
@@ -10,10 +10,6 @@ This project demonstrates the usage of the Model Context Protocol (MCP) to creat
 - `mcp-server-protocol.ts`: An MCP server implemented as an HTTP server using Express.js. It manually implements the JSON-RPC based MCP, providing the same weather tools over an HTTP endpoint.
 - `utils.ts`: Contains utility functions for interacting with the NWS API, including making requests and formatting alert data.
 - `types.ts`: Defines TypeScript types and Zod schemas for validating arguments and structuring data related to the NWS API.
-- `package.json`: Defines project dependencies and scripts.
-- `package-lock.json`: Records the exact versions of dependencies.
-- `.gitignore`: Specifies intentionally untracked files that Git should ignore.
-- `README.md`: This file.
 
 ## Features
 
@@ -66,7 +62,7 @@ The client is configured in `mcp-client.ts`. By default, it attempts to connect 
 To run the client:
 
 ```bash
-npx tsx mcp-client.ts
+tsx mcp-client.ts
 ```
 
 Once connected, you can type your weather-related queries, for example:

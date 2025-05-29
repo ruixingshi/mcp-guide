@@ -12,10 +12,10 @@ import { createInterface } from "readline";
 import { homedir } from "os";
 import dotenv from "dotenv";
 
-// 解析环境参数
+// Parse environment parameters
 dotenv.config();
 
-// mcp server配置
+// mcp server configuration
 const config = [
   {
     name: "demo-stdio-v1",
@@ -37,7 +37,7 @@ const config = [
   },
 ];
 
-// 初始化环境变量
+// Initialize environment variables
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_MODEL = process.env.OPENAI_MODEL;
 const OPENAI_BASE_URL = process.env.OPENAI_BASE_URL;
@@ -115,7 +115,7 @@ class MCPClient {
 
     this.sessions.set(serverName, client);
     this.transports.set(serverName, transport);
-    // 列出可用工具
+    // List available tools
     const response = await client.listTools();
     console.log(
       `\nConnected to server '${serverName}' with tools:`,
@@ -130,7 +130,7 @@ class MCPClient {
     if (!command) {
       throw new Error("Invalid shell command");
     }
-    // 处理参数中的波浪号路径
+    // Handle tilde paths in arguments
     const args = shellArgs.map((arg) => {
       if (arg.startsWith("~/")) {
         return arg.replace("~", homedir());
@@ -165,7 +165,7 @@ class MCPClient {
       },
     ];
 
-    // !!! Step 1、获取所有服务器的工具列表
+    // Step 1, Get the list of tools for all servers
     const availableTools: any[] = [];
     for (const [serverName, session] of this.sessions) {
       const response = await session.listTools();
@@ -180,16 +180,16 @@ class MCPClient {
       availableTools.push(...tools);
     }
 
-    // !!! Step 2、用户提问，调用OpenAI API，并配置可用工具
+    // Step 2, User asks a question, calls the OpenAI API, and configures available tools
     const completion = await this.openai.chat.completions.create({
-      model: OPENAI_MODEL,
+      model: OPENAI_MODEL as string,
       messages,
       tools: availableTools,
       tool_choice: "auto",
     });
     const finalText: string[] = [];
 
-    // 处理OpenAI的响应
+    // Process OpenAI's response
     for (const choice of completion.choices) {
       const message = choice.message;
 
@@ -206,12 +206,12 @@ class MCPClient {
             continue;
           }
           const toolArgs = JSON.parse(toolCall.function.arguments);
-          // 执行工具调用
+          // Execute tool call
           const result = await session.callTool({
             name: toolName,
             arguments: toolArgs,
           });
-          // !!! Step 3、获取工具调用结果
+          // Step 3, Get the tool call result
           const toolResult = result as unknown as MCPToolResult;
           finalText.push(
             `[Calling tool ${toolName} on server ${serverName} with args ${JSON.stringify(
@@ -219,7 +219,7 @@ class MCPClient {
             )}]`
           );
           finalText.push(toolResult.content);
-          // 继续与工具结果的对话
+          // Continue the conversation with the tool result
           messages.push({
             role: "assistant",
             content: "",
@@ -233,15 +233,15 @@ class MCPClient {
 
           console.log("\n -- toolResult.content -- \n", toolResult.content);
 
-          // !!! Step 4、结合用户提问与工具返回结果，继续与大模型对话
+          // Step 4, Combine the user's question and the tool's return result, and continue the conversation with the large model
           const nextCompletion = await this.openai.chat.completions.create({
-            model: OPENAI_MODEL,
+            model: OPENAI_MODEL as string,
             messages,
             tools: availableTools,
             tool_choice: "auto",
           });
 
-          // !!! Step 5、返回最后结果
+          // Step 5, Return the final result
           if (nextCompletion.choices[0].message.content) {
             finalText.push(nextCompletion.choices[0].message.content);
           }
