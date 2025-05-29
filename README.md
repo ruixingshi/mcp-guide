@@ -1,4 +1,4 @@
-# MCP Example
+# MCP Guide
 
 A repository containing the basic MCP client and MCP server (based on SDK and JSON-RPC implementation) to help everyone learn MCP from 0.
 
